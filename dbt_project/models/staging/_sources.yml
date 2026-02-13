@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: top_podcasts
+        loaded_at_field: date
+        freshness:
+          warn_after: { count: 2, period: day }
+          error_after: { count: 7, period: day }
+        columns:
+          - name: date
+            tests:
+              - not_null
+          - name: rank
+            tests:
+              - not_null
+          - name: region
+            tests:
+              - not_null
+          - name: episodeUri
+            tests:
+              - not_null

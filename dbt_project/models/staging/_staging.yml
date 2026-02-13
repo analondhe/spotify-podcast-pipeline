@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: stg_podcast_episodes
+    description: "Staged podcast episode rankings — one row per episode per region per day."
+    columns:
+      - name: snapshot_date
+        tests:
+          - not_null
+      - name: ranking_position
+        tests:
+          - not_null
+      - name: region_code
+        tests:
+          - not_null
+      - name: show_name
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: chart_rank_move
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["UP", "DOWN", "UNCHANGED", "NEW"]
+      - name: media_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["audio", "mixed"]

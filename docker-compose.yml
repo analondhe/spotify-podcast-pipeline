@@ -1,0 +1,45 @@
+services:
+  download:
+    build: .
+    image: spotify-pipeline
+    volumes:
+      - ./data:/app/data
+    environment:
+      - KAGGLE_USERNAME
+      - KAGGLE_KEY
+    command: python scripts/download_kaggle.py
+
+  load:
+    image: spotify-pipeline
+    volumes:
+      - ./data:/app/data
+      - ./warehouse:/app/warehouse
+    command: python scripts/load_to_duckdb.py
+
+  dbt-run:
+    image: spotify-pipeline
+    volumes:
+      - ./warehouse:/app/warehouse
+    working_dir: /app/dbt_project
+    command: dbt run --profiles-dir .
+
+  dbt-test:
+    image: spotify-pipeline
+    volumes:
+      - ./warehouse:/app/warehouse
+    working_dir: /app/dbt_project
+    command: dbt test --profiles-dir .
+
+  run-all:
+    image: spotify-pipeline
+    volumes:
+      - ./data:/app/data
+      - ./warehouse:/app/warehouse
+    environment:
+      - KAGGLE_USERNAME
+      - KAGGLE_KEY
+    command: >
+      sh -c "python scripts/download_kaggle.py
+             && python scripts/load_to_duckdb.py
+             && cd dbt_project && dbt run --profiles-dir .
+             && dbt test --profiles-dir ."

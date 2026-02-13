@@ -1,0 +1,6 @@
+{
+    "dbt.enableNewLineagePanel": true,
+    "dbt.dbtPythonPathOverride": ".venv/bin/python",
+    "dbt.profilesDirOverride": "dbt_project",
+    "dbt.queryLimit": 499
+}

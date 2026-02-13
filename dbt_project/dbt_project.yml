@@ -1,0 +1,13 @@
+name: spotify_podcast_pipeline
+version: "1.0.0"
+config-version: 2
+
+profile: spotify_podcast_pipeline
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
