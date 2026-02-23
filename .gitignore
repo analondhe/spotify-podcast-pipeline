@@ -5,5 +5,9 @@ __pycache__/
 *.pyc
 dbt_project/target/
 dbt_project/dbt_packages/
+dbt_project/dbt_internal_packages/
 dbt_project/logs/
+dbt_project/package-lock.yml
+dbt_project/.user.yml
+.DS_Store
 .env
