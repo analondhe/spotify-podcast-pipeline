@@ -1,0 +1,18 @@
+version: 2
+seeds:
+  - name: country_codes
+    description: "ISO 3166 country codes with continent and world region mapping"
+    columns:
+      - name: country_code
+        tests:
+          - not_null
+          - unique
+      - name: country_name
+        tests:
+          - not_null
+      - name: continent
+        tests:
+          - not_null
+      - name: world_region
+        tests:
+          - not_null

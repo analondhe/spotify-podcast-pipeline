@@ -4,4 +4,4 @@ spotify_podcast_pipeline:
     dev:
       type: duckdb
       path: ../warehouse/spotify_podcasts.duckdb
-      schema: analytics
+      schema: main

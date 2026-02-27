@@ -11,3 +11,19 @@ target-path: "target"
 clean-targets:
   - "target"
   - "dbt_packages"
+
+models:
+  spotify_podcast_pipeline:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: analytics
+
+seeds:
+  spotify_podcast_pipeline:
+    +schema: seeds
