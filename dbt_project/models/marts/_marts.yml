@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: fct_region_insights
+    description: "One row per region per day. Contains aggregated
+                  podcast chart metrics per country including content
+                  mix, listening profile, and population context.
+                  Primary mart for regional and geographic analysis."
+    columns:
+      - name: region_code
+        tests:
+          - not_null
+      - name: snapshot_date
+        tests:
+          - not_null
+      - name: total_shows
+        tests:
+          - not_null
+      - name: pct_audio
+        tests:
+          - not_null

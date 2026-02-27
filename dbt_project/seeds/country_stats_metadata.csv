@@ -1,0 +1,12 @@
+key,value
+source,World Bank World Development Indicators
+indicator,SP.POP.TOTL
+indicator_name,Population total
+data_year,2023
+download_date,2026-02-27
+url,https://data.worldbank.org/indicator/SP.POP.TOTL
+license,CC BY-4.0
+country_code_format,ISO 3166-1 alpha-2 uppercase (e.g. US GB DE)
+next_refresh,2027-08-01
+rows,217
+notes,Annual data. country_code is uppercase alpha-2. Refresh every August.

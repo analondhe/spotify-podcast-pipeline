@@ -27,7 +27,7 @@ final as (
     select
         cast(snapshot_date as date) as snapshot_date,
         cast(ranking_position as integer) as ranking_position,
-        region_code,
+        upper(region_code) as region_code,
         chart_rank_move,
         episode_uri,
         show_uri,

@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: int_region_overview
+    description: "Episode-level data enriched with country name,
+                  continent and world region from ISO country codes seed.
+                  One row per episode per region per day."
+    columns:
+      - name: region_code
+        tests:
+          - not_null
+      - name: snapshot_date
+        tests:
+          - not_null
+      - name: country_name
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: continent
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+  - name: int_show_performance
+    description: "Episode-level data scoped for show performance analysis.
+                  One row per episode per region per day."
+    columns:
+      - name: show_uri
+        tests:
+          - not_null
+      - name: ranking_position
+        tests:
+          - not_null

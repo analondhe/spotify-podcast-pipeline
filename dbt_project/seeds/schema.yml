@@ -16,3 +16,28 @@ seeds:
       - name: world_region
         tests:
           - not_null
+
+  - name: country_stats
+    description: "World Bank population total SP.POP.TOTL.
+                  Manually refreshed annually from World Bank API."
+    columns:
+      - name: country_code
+        tests:
+          - not_null
+          - unique
+      - name: population
+        tests:
+          - not_null
+
+  - name: country_stats_metadata
+    description: "Metadata for country_stats seed. Documents source,
+                  data year, country_code format and refresh schedule.
+                  Key field to note: country_code is uppercase alpha-2."
+    columns:
+      - name: key
+        tests:
+          - not_null
+          - unique
+      - name: value
+        tests:
+          - not_null
