@@ -37,3 +37,19 @@ models:
       - name: best_rank_ever
         tests:
           - not_null
+
+  - name: fct_publisher_insights
+    description: "One row per publisher — lifetime performance summary
+                  across all their shows, regions, and dates. Used for
+                  publisher portfolio analysis and global reach comparison."
+    columns:
+      - name: show_publisher
+        tests:
+          - not_null
+          - unique
+      - name: total_shows
+        tests:
+          - not_null
+      - name: best_rank_ever
+        tests:
+          - not_null
