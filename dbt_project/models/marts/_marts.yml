@@ -19,3 +19,21 @@ models:
       - name: pct_audio
         tests:
           - not_null
+
+  - name: fct_show_insights
+    description: "One row per show — lifetime performance summary
+                  across all regions and dates. Used for global show
+                  rankings, reach analysis and market size analysis."
+    columns:
+      - name: show_name
+        tests:
+          - not_null
+      - name: show_publisher
+        tests:
+          - not_null
+      - name: regions_present
+        tests:
+          - not_null
+      - name: best_rank_ever
+        tests:
+          - not_null

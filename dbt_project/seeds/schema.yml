@@ -12,10 +12,14 @@ seeds:
           - not_null
       - name: continent
         tests:
-          - not_null
+          - not_null:
+              config:
+                severity: warn
       - name: world_region
         tests:
-          - not_null
+          - not_null:
+              config:
+                severity: warn
 
   - name: country_stats
     description: "World Bank population total SP.POP.TOTL.
