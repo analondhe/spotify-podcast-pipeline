@@ -1,6 +1,6 @@
 # Spotify Podcast Pipeline
 
-An end-to-end data pipeline that downloads daily Spotify podcast ranking data from Kaggle, loads it into a DuckDB warehouse, and transforms it through a multi-layer dbt model structure. Orchestrated with Docker Compose and Apache Airflow.
+An end-to-end data pipeline that downloads daily Spotify podcast ranking data, loads it into a DuckDB warehouse, and transforms it through a multi-layer dbt model structure. Orchestrated with Docker Compose and Apache Airflow.
 
 ## What This Project Does
 
