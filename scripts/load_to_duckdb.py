@@ -17,6 +17,11 @@ def sanitize(name: str) -> str:
     return name.lower().replace(" ", "_").replace("-", "_")
 
 
+def quote_ident(name: str) -> str:
+    """Quote an identifier for safe interpolation into SQL."""
+    return '"' + name.replace('"', '""') + '"'
+
+
 def load_csv(con: duckdb.DuckDBPyConnection, csv_path: str) -> None:
     """Load a single CSV into the raw schema, replacing any existing table."""
     table_name = sanitize(os.path.splitext(os.path.basename(csv_path))[0])
@@ -24,12 +29,14 @@ def load_csv(con: duckdb.DuckDBPyConnection, csv_path: str) -> None:
 
     print(f"  {filename} -> raw.{table_name}")
 
+    qualified = f"raw.{quote_ident(table_name)}"
+
     try:
-        con.execute(f"DROP TABLE IF EXISTS raw.{table_name}")
+        con.execute(f"DROP TABLE IF EXISTS {qualified}")
         con.execute(
-            f"CREATE TABLE raw.{table_name} AS SELECT * FROM read_csv_auto('{csv_path}')"
+            f"CREATE TABLE {qualified} AS SELECT * FROM read_csv_auto(?)", [csv_path]
         )
-        row_count = con.execute(f"SELECT COUNT(*) FROM raw.{table_name}").fetchone()[0]
+        row_count = con.execute(f"SELECT COUNT(*) FROM {qualified}").fetchone()[0]
         print(f"    {row_count:,} rows loaded")
     except duckdb.Error as e:
         print(f"    ERROR loading {filename}: {e}", file=sys.stderr)
@@ -45,8 +52,9 @@ def print_column_inventory(con: duckdb.DuckDBPyConnection) -> None:
     print("\n--- Column inventory ---")
     for (tbl,) in tables:
         cols = con.execute(
-            f"SELECT column_name, data_type FROM information_schema.columns "
-            f"WHERE table_schema = 'raw' AND table_name = '{tbl}' ORDER BY ordinal_position"
+            "SELECT column_name, data_type FROM information_schema.columns "
+            "WHERE table_schema = 'raw' AND table_name = ? ORDER BY ordinal_position",
+            [tbl],
         ).fetchall()
         print(f"\nraw.{tbl}:")
         for col_name, col_type in cols:

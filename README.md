@@ -30,7 +30,8 @@ Kaggle CSV ──► download_kaggle.py ──► data/ ──► load_to_duckdb
                                                      ▼                     ▼                   ▼
                                                staging schema     intermediate schema    analytics schema
                                             stg_podcast_episodes  int_region_overview    fct_region_insights
-                                                                  int_show_performance
+                                                                  int_show_performance   fct_show_insights
+                                                                                         fct_publisher_insights
 ```
 
 ### dbt Model Layers
@@ -41,6 +42,8 @@ Kaggle CSV ──► download_kaggle.py ──► data/ ──► load_to_duckdb
 | **Intermediate** | `intermediate` | view | `int_region_overview` — enriches episodes with country name, continent, world region, and population |
 | | | | `int_show_performance` — scoped view for show-level analysis with population context |
 | **Marts** | `analytics` | table | `fct_region_insights` — one row per region per day with aggregated metrics: content mix, listening profile, population context |
+| | | | `fct_show_insights` — one row per show: lifetime reach, rank performance, and market size stats |
+| | | | `fct_publisher_insights` — one row per publisher: portfolio size, reach, and rank performance |
 | **Seeds** | `seeds` | table | `country_codes`, `country_stats`, `country_stats_metadata` |
 
 ## Tech Stack

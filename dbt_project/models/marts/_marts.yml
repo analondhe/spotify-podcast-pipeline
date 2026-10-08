@@ -25,6 +25,10 @@ models:
                   across all regions and dates. Used for global show
                   rankings, reach analysis and market size analysis."
     columns:
+      - name: show_uri
+        tests:
+          - not_null
+          - unique
       - name: show_name
         tests:
           - not_null

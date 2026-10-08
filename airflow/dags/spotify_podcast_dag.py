@@ -1,9 +1,12 @@
+import os
 from datetime import datetime
 
 from airflow import DAG
 from airflow.providers.standard.operators.bash import BashOperator
 
-PROJECT_DIR = "/Users/anaghaalondhe/spotify-podcast-pipeline"
+PROJECT_DIR = os.environ.get(
+    "SPOTIFY_PIPELINE_DIR", "/Users/anaghaalondhe/spotify-podcast-pipeline"
+)
 
 default_args = {
     "owner": "airflow",
