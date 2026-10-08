@@ -6,54 +6,142 @@ models:
                   podcast chart metrics per country including content
                   mix, listening profile, and population context.
                   Primary mart for regional and geographic analysis."
+    meta:
+      grain: "region_code + snapshot_date"
     columns:
       - name: region_code
+        description: "ISO 3166-1 alpha-2 country code of the chart, upper-cased (e.g. US, DE, GB)."
         tests:
           - not_null
       - name: snapshot_date
+        description: "Calendar date the daily chart was captured."
         tests:
           - not_null
+      - name: country_name
+        description: "Full country name from the ISO country_codes seed."
+      - name: continent
+        description: "Continent of the region (e.g. Europe, Americas, Asia)."
+      - name: world_region
+        description: "Finer-grained world region from the ISO seed (e.g. Northern Europe, Northern America)."
+      - name: population
+        description: "Total population of the country from the World Bank SP.POP.TOTL indicator (annual, not daily)."
       - name: total_shows
+        description: "Count of distinct shows that appeared on the chart that day."
         tests:
           - not_null
+      - name: total_episodes
+        description: "Count of distinct episodes that appeared on the chart that day."
+      - name: total_rows
+        description: "Number of ranked chart entries that day (one per episode slot). Denominator for the pct_* columns."
+      - name: mixed_media_count
+        description: "Chart entries whose show is mixed media (video + audio)."
+      - name: audio_count
+        description: "Chart entries whose show is audio-only."
+      - name: explicit_count
+        description: "Chart entries flagged explicit."
+      - name: new_entries_count
+        description: "Chart entries that were new to the chart that day (chart_rank_move = NEW)."
       - name: pct_audio
+        description: "Share of chart entries that are audio-only, as a percentage 0-100."
         tests:
           - not_null
+      - name: pct_mixed_media
+        description: "Share of chart entries that are mixed media, as a percentage 0-100."
+      - name: pct_explicit
+        description: "Share of chart entries flagged explicit, as a percentage 0-100."
+      - name: avg_duration_minutes
+        description: "Average episode duration in minutes across the day's chart entries."
+      - name: dominant_language
+        description: "Most common episode language value on the chart that day. Stored as a list-like string such as ['en']."
 
   - name: fct_show_insights
     description: "One row per show — lifetime performance summary
                   across all regions and dates. Used for global show
                   rankings, reach analysis and market size analysis."
+    meta:
+      grain: "show_uri"
     columns:
       - name: show_uri
+        description: "Spotify show URI. Primary key of this table."
         tests:
           - not_null
           - unique
       - name: show_name
+        description: "Display name of the show."
         tests:
           - not_null
       - name: show_publisher
+        description: "Publisher or network that owns the show. Joins to fct_publisher_insights.show_publisher."
         tests:
           - not_null
+      - name: media_type
+        description: "Show format: audio (audio-only) or mixed (video + audio)."
+      - name: show_total_episodes
+        description: "Total episodes the show has published per Spotify metadata. Not the number that charted."
       - name: regions_present
+        description: "Number of distinct regions (countries) where the show has ever charted."
         tests:
           - not_null
+      - name: unique_episodes_charted
+        description: "Number of distinct episodes of this show that have ever appeared on any chart."
+      - name: total_days_on_chart
+        description: "Number of distinct snapshot dates on which the show appeared on at least one chart."
+      - name: total_rows
+        description: "Total chart appearances (episode x region x day). A measure of overall chart presence."
       - name: best_rank_ever
+        description: "Best (lowest) ranking position the show ever achieved. 1 is the top of the chart."
         tests:
           - not_null
+      - name: avg_rank
+        description: "Average ranking position across all chart appearances. Lower is better."
+      - name: first_charted
+        description: "Earliest snapshot_date the show appeared on any chart."
+      - name: last_charted
+        description: "Latest snapshot_date the show appeared on any chart."
+      - name: avg_market_population
+        description: "Average country population across the show's chart appearances (weighted by appearances). Proxy for typical market size."
+      - name: largest_market_population
+        description: "Population of the most populous country where the show charted."
+      - name: smallest_market_population
+        description: "Population of the least populous country where the show charted."
 
   - name: fct_publisher_insights
     description: "One row per publisher — lifetime performance summary
                   across all their shows, regions, and dates. Used for
                   publisher portfolio analysis and global reach comparison."
+    meta:
+      grain: "show_publisher"
     columns:
       - name: show_publisher
+        description: "Publisher or network name. Primary key of this table."
         tests:
           - not_null
           - unique
       - name: total_shows
+        description: "Number of distinct shows from this publisher that have ever charted."
         tests:
           - not_null
+      - name: total_episodes_charted
+        description: "Number of distinct episodes across all the publisher's shows that have ever charted."
+      - name: regions_present
+        description: "Number of distinct regions (countries) where any of the publisher's shows charted."
+      - name: total_days_on_chart
+        description: "Number of distinct snapshot dates with at least one of the publisher's shows on a chart."
+      - name: total_rows
+        description: "Total chart appearances across all the publisher's shows (episode x region x day)."
       - name: best_rank_ever
+        description: "Best (lowest) ranking position any of the publisher's shows achieved. 1 is the top."
         tests:
           - not_null
+      - name: avg_rank
+        description: "Average ranking position across all the publisher's chart appearances. Lower is better."
+      - name: audio_shows
+        description: "Number of distinct audio-only shows from this publisher that charted."
+      - name: mixed_shows
+        description: "Number of distinct mixed-media shows from this publisher that charted."
+      - name: avg_market_population
+        description: "Average country population across the publisher's chart appearances. Proxy for typical market size."
+      - name: first_charted
+        description: "Earliest snapshot_date any of the publisher's shows charted."
+      - name: last_charted
+        description: "Latest snapshot_date any of the publisher's shows charted."

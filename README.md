@@ -54,6 +54,7 @@ Kaggle CSV ──► download_kaggle.py ──► data/ ──► load_to_duckdb
 - **Docker & Docker Compose** — containerized pipeline execution
 - **Apache Airflow** — DAG-based orchestration (scheduled daily at 9 AM)
 - **Kaggle API** — dataset download
+- **Claude API** (`anthropic` SDK) or **Ollama** (open-source models) + **Streamlit** + **Plotly** — chat agent over the marts
 
 ## Project Structure
 
@@ -61,6 +62,16 @@ Kaggle CSV ──► download_kaggle.py ──► data/ ──► load_to_duckdb
 spotify-podcast-pipeline/
 ├── airflow/dags/
 │   └── spotify_podcast_dag.py        # Airflow DAG (daily schedule)
+├── agent/
+│   ├── catalog.py                    # Entity catalog from DuckDB + dbt YAML descriptions
+│   ├── tools.py                      # list/describe/run_sql/render_chart tools (read-only)
+│   ├── charts.py                     # Plotly chart builder
+│   ├── providers.py                  # Claude and Ollama backends
+│   ├── chat.py                       # Provider-agnostic streaming loop
+│   ├── cli.py                        # Terminal chat
+│   └── app.py                        # Streamlit chat UI
+├── tests/
+│   └── test_agent.py                 # Agent tests (no API key needed)
 ├── scripts/
 │   ├── download_kaggle.py            # Downloads dataset from Kaggle
 │   └── load_to_duckdb.py            # Loads CSVs into DuckDB raw schema
@@ -128,6 +139,55 @@ Update `dags_folder` in `~/airflow/airflow.cfg` to point to the `airflow/dags/` 
 
 ```bash
 airflow standalone
+```
+
+## Chat With the Warehouse
+
+Once the marts are built you can ask questions in plain language. The agent (in `agent/`) reads the dbt YAML descriptions as its semantic layer, writes read-only DuckDB SQL through tool calls, shows you the SQL and result table for every answer, and renders Plotly charts when you ask for a graph.
+
+It runs on either Claude (Anthropic API) or an open-source model served by [Ollama](https://ollama.com). The provider is a drop-down in the UI or a flag on the CLI.
+
+```bash
+pip install -r requirements.txt
+
+# Option A: Claude
+export ANTHROPIC_API_KEY=...            # or add it to .env
+streamlit run agent/app.py             # chat UI with charts at http://localhost:8501
+python -m agent.cli                    # terminal chat (charts saved as HTML under .context/charts/)
+python -m agent.cli "Which publishers chart in the most regions?"
+
+# Option B: open-source model, fully local
+ollama pull qwen3:8b
+python -m agent.cli --provider ollama --model qwen3:8b
+PODCAST_AGENT_PROVIDER=ollama streamlit run agent/app.py
+
+docker compose run --rm --service-ports chat   # UI inside Docker (Claude provider)
+```
+
+Provider notes:
+
+- **Claude** (`claude-opus-5-5` by default) gives the most reliable SQL and multi-step answers. `PODCAST_AGENT_EFFORT` (default `medium`) tunes depth versus cost.
+- **Ollama** needs a model with tool-calling support. Qwen 3 8B works on a 16 GB Mac at roughly 10 to 60 seconds per answer; Gemma 3 does not support tools. Thinking mode is on by default because it noticeably improves multi-step SQL; set `PODCAST_AGENT_THINK=0` for faster, rougher answers. `OLLAMA_NUM_CTX` (default 16384) must stay large enough to hold the data dictionary. Expect weaker answers than Claude on anything needing two or more queries.
+
+Example questions:
+
+- Which shows chart in the most regions, and what is their best rank?
+- Compare the audio vs mixed-media share by country as a bar chart.
+- How has average episode duration changed over time for Germany and the US?
+- Which publishers have the best average rank with at least 3 shows?
+
+How it works:
+
+- `analytics.*` marts are offered first; staging, intermediate, and seed entities are available on request. The `raw` schema is hidden.
+- Only single `SELECT` statements run, on a read-only connection, with a row cap and a 30-second timeout.
+- Column and grain descriptions come from `dbt_project/models/**/*.yml`, so documenting a model there improves the agent's answers.
+- `PODCAST_AGENT_PROVIDER` (`anthropic` or `ollama`) and `PODCAST_AGENT_MODEL` pick the backend; defaults are Claude Opus 5.5 and `qwen3:8b`.
+- The agent opens DuckDB read-only, which cannot coexist with a `dbt run` writing the same file. Stop the chat before rebuilding the marts.
+
+Run the agent tests (they use a fake API client, so no key is needed):
+
+```bash
+python -m pytest tests
 ```
 
 ## Sample Output
