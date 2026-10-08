@@ -3,28 +3,62 @@ version: 2
 models:
   - name: stg_podcast_episodes
     description: "Staged podcast episode rankings — one row per episode per region per day."
+    meta:
+      grain: "episode_uri + region_code + snapshot_date"
     columns:
       - name: snapshot_date
+        description: "Calendar date the daily chart was captured."
         tests:
           - not_null
       - name: ranking_position
+        description: "Position on that day's chart. 1 is the top."
         tests:
           - not_null
       - name: region_code
+        description: "ISO 3166-1 alpha-2 country code of the chart, upper-cased."
         tests:
           - not_null
-      - name: show_name
-        tests:
-          - not_null:
-              config:
-                severity: warn
       - name: chart_rank_move
+        description: "Movement versus the previous day: UP, DOWN, UNCHANGED, or NEW."
         tests:
           - accepted_values:
               arguments:
                 values: ["UP", "DOWN", "UNCHANGED", "NEW"]
+      - name: episode_uri
+        description: "Spotify episode URI."
+      - name: show_uri
+        description: "Spotify show URI. Joins to fct_show_insights.show_uri."
+      - name: episode_name
+        description: "Episode title."
+      - name: episode_description
+        description: "Episode description text."
+      - name: show_name
+        description: "Display name of the show."
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: show_description
+        description: "Show description text."
+      - name: show_publisher
+        description: "Publisher or network that owns the show."
+      - name: duration_ms
+        description: "Episode duration in milliseconds."
+      - name: duration_minutes
+        description: "Episode duration in minutes (duration_ms / 60000, rounded to 2 decimals)."
+      - name: explicit
+        description: "True if the episode is flagged explicit."
+      - name: languages
+        description: "Episode language codes as a list-like string, e.g. ['en']."
+      - name: release_date
+        description: "Episode release date."
+      - name: release_date_precision
+        description: "Precision of release_date: day, month, or year."
       - name: media_type
+        description: "Show format: audio (audio-only) or mixed (video + audio)."
         tests:
           - accepted_values:
               arguments:
                 values: ["audio", "mixed"]
+      - name: show_total_episodes
+        description: "Total episodes the show has published per Spotify metadata."

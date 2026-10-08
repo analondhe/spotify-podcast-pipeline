@@ -43,3 +43,15 @@ services:
              && python scripts/load_to_duckdb.py
              && cd dbt_project && dbt run --profiles-dir .
              && dbt test --profiles-dir ."
+
+  chat:
+    image: spotify-pipeline
+    volumes:
+      - ./warehouse:/app/warehouse
+    environment:
+      - ANTHROPIC_API_KEY
+      - PODCAST_AGENT_MODEL
+      - PODCAST_AGENT_EFFORT
+    ports:
+      - "8501:8501"
+    command: streamlit run agent/app.py --server.address 0.0.0.0 --server.port 8501

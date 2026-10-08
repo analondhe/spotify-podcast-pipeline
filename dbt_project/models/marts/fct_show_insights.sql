@@ -1,9 +1,10 @@
 {{ config(materialized='table') }}
 
 select
-    show_name,
-    show_publisher,
-    media_type,
+    show_uri,
+    max(show_name)                              as show_name,
+    max(show_publisher)                         as show_publisher,
+    max(media_type)                             as media_type,
     max(show_total_episodes)                    as show_total_episodes,
     count(distinct region_code)                 as regions_present,
     count(distinct episode_uri)                 as unique_episodes_charted,
@@ -20,6 +21,4 @@ select
 
 from {{ ref('int_show_performance') }}
 group by
-    show_name,
-    show_publisher,
-    media_type
+    show_uri
